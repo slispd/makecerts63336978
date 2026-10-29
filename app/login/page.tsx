@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
 import { microsoftEnabled, signIn } from "@/auth";
-import { getUser } from "@/lib/session";
+import { getUser, missingEnv } from "@/lib/session";
 
 const ERRORS: Record<string, string> = {
   CredentialsSignin: "E-mail ou senha incorretos.",
@@ -16,6 +16,7 @@ export default async function LoginPage({
 }) {
   if (await getUser()) redirect("/cursos");
   const { error } = await searchParams;
+  const missing = missingEnv();
 
   async function loginAdmin(formData: FormData) {
     "use server";
@@ -59,6 +60,18 @@ export default async function LoginPage({
         <div className="w-full max-w-sm">
           <h2 className="text-2xl font-semibold text-slate-900">Entrar</h2>
           <p className="text-slate-500 mt-1 mb-8">Acesse com sua conta corporativa.</p>
+
+          {missing.length > 0 && (
+            <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              <b>Configuração incompleta.</b> Faltam estas variáveis na Vercel:
+              <ul className="list-disc pl-5 mt-1 font-mono text-xs">
+                {missing.map((m) => (
+                  <li key={m}>{m}</li>
+                ))}
+              </ul>
+              <div className="mt-2">Depois de criá-las, faça um <b>Redeploy</b>.</div>
+            </div>
+          )}
 
           {error && (
             <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

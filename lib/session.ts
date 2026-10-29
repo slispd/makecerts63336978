@@ -8,8 +8,24 @@ export interface SessionUser {
   role: Role;
 }
 
+/** Variáveis obrigatórias que ainda não foram configuradas na Vercel. */
+export function missingEnv(): string[] {
+  const missing: string[] = [];
+  if (!process.env.AUTH_SECRET && !process.env.NEXTAUTH_SECRET) missing.push("AUTH_SECRET");
+  if (!process.env.ADMIN_EMAIL) missing.push("ADMIN_EMAIL");
+  if (!process.env.ADMIN_PASSWORD) missing.push("ADMIN_PASSWORD");
+  if (!process.env.DATABASE_URL && !process.env.POSTGRES_URL) missing.push("DATABASE_URL (banco Neon)");
+  return missing;
+}
+
 export async function getUser(): Promise<SessionUser | null> {
-  const session = await auth();
+  let session;
+  try {
+    session = await auth();
+  } catch (e) {
+    console.error("Falha ao ler a sessão:", e);
+    return null;
+  }
   if (!session?.user?.email) return null;
   return {
     email: session.user.email,

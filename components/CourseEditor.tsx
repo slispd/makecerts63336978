@@ -23,8 +23,10 @@ export function CourseEditor({
   initialStudents,
   templates,
   issuerText,
+  isAdmin = false,
 }: {
   issuerText?: string;
+  isAdmin?: boolean;
   course: Course;
   initialStudents: Student[];
   templates: Template[];
@@ -250,7 +252,11 @@ export function CourseEditor({
                 {templates.length === 0 && (
                   <div className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-sm text-amber-800">
                     Nenhum modelo cadastrado ainda.{" "}
-                    <Link href="/modelos/novo" className="underline font-medium">Criar um modelo</Link>
+                    {isAdmin ? (
+                      <Link href="/modelos/novo" className="underline font-medium">Criar um modelo</Link>
+                    ) : (
+                      "Peça ao administrador para cadastrar um."
+                    )}
                   </div>
                 )}
                 <div className="grid sm:grid-cols-3 gap-4">

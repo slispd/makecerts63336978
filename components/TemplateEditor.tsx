@@ -27,7 +27,15 @@ const SAMPLE = {
   studentCpf: "52998224725",
 };
 
-export function TemplateEditor({ template, issuerText }: { template?: Template; issuerText?: string }) {
+export function TemplateEditor({
+  template,
+  issuerText,
+  readOnly = false,
+}: {
+  template?: Template;
+  issuerText?: string;
+  readOnly?: boolean;
+}) {
   const router = useRouter();
   const [form, setForm] = useState<TemplateInput>(() =>
     template
@@ -64,19 +72,23 @@ export function TemplateEditor({ template, issuerText }: { template?: Template; 
       <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
         <div>
           <Link href="/modelos" className="text-sm text-slate-500 hover:text-slate-800">← Modelos</Link>
-          <h1 className="text-2xl font-semibold text-slate-900">{template ? "Editar modelo" : "Novo modelo"}</h1>
+          <h1 className="text-2xl font-semibold text-slate-900">{readOnly ? template?.name : template ? "Editar modelo" : "Novo modelo"}</h1>
+          {readOnly && (
+            <p className="text-sm text-slate-500 mt-0.5">Somente visualização. Apenas administradores podem alterar modelos.</p>
+          )}
         </div>
-        <div className="flex gap-2">
+        {!readOnly && <div className="flex gap-2">
           {template && (
             <Button variant="danger" onClick={remove} disabled={pending}>Excluir</Button>
           )}
           <Button onClick={save} disabled={pending}>{pending ? "Salvando…" : "Salvar modelo"}</Button>
-        </div>
+        </div>}
       </div>
       {error && <div className="mb-4 rounded-lg bg-red-50 px-4 py-2 text-sm text-red-700">{error}</div>}
 
       <div className="grid gap-6 xl:grid-cols-[420px_minmax(0,1fr)] items-start">
-        <Card className="p-5 space-y-5">
+        <Card className="p-5">
+          <fieldset disabled={readOnly} className={`space-y-5 ${readOnly ? "pointer-events-none" : ""}`}>
           <Field label="Nome do modelo">
             <Input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Ex.: ABIX institucional" autoFocus={!template} />
           </Field>
@@ -137,6 +149,7 @@ export function TemplateEditor({ template, issuerText }: { template?: Template; 
             maxH={2480}
             keepAlpha={false}
           />
+          </fieldset>
         </Card>
 
         <div className="xl:sticky xl:top-20 space-y-3">

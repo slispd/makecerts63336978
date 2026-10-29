@@ -1,18 +1,24 @@
 import Link from "next/link";
 import { listTemplateNames } from "@/lib/data";
 import { Card, PageHeader } from "@/components/ui";
+import { requireUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
 export default async function TemplatesPage() {
-  const templates = await listTemplateNames();
+  const [templates, user] = await Promise.all([listTemplateNames(), requireUser()]);
+  const isAdmin = user.role === "admin";
   return (
     <>
       <PageHeader
         title="Modelos de certificado"
-        subtitle="Defina logo, cores, fontes e artes de fundo. Cada curso escolhe um modelo."
+        subtitle={
+          isAdmin
+            ? "Defina logo, cores, fontes e artes de fundo. Cada curso escolhe um modelo."
+            : "Modelos disponíveis para os cursos. Clique para visualizar."
+        }
         actions={
-          <Link href="/modelos/novo" className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-900">
+          isAdmin && <Link href="/modelos/novo" className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-900">
             + Novo modelo
           </Link>
         }
@@ -20,7 +26,9 @@ export default async function TemplatesPage() {
       {templates.length === 0 ? (
         <Card className="p-12 text-center">
           <p className="text-lg font-medium text-slate-800">Nenhum modelo ainda</p>
-          <p className="text-slate-500 mt-1">Crie o primeiro modelo enviando o logo da ABIX.</p>
+          <p className="text-slate-500 mt-1">
+            {isAdmin ? "Crie o primeiro modelo enviando o logo da ABIX." : "Peça ao administrador para cadastrar um modelo."}
+          </p>
         </Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

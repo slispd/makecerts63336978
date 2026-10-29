@@ -39,7 +39,7 @@ const uuid = (v: string) => {
 
 export async function saveTemplate(input: TemplateInput) {
   return run(async () => {
-    await assertUser();
+    await assertAdmin();
     await ensureSchema();
     const name = str(input.name, 120);
     if (!name) throw new Error("Dê um nome ao modelo");
@@ -71,7 +71,7 @@ export async function saveTemplate(input: TemplateInput) {
 
 export async function deleteTemplate(id: string) {
   return run(async () => {
-    await assertUser();
+    await assertAdmin();
     await sql`delete from templates where id = ${uuid(id)}`;
     revalidatePath("/modelos");
   });

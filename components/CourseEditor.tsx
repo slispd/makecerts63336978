@@ -30,7 +30,7 @@ export function CourseEditor({
   const [saved, setSaved] = useState<CourseInput>(() => toInput(course));
   const [form, setForm] = useState<CourseInput>(() => toInput(course));
   const [students, setStudents] = useState<Student[]>(initialStudents);
-  const [tab, setTab] = useState<Tab>(course.syllabus ? "alunos" : "ementa");
+  const [tab, setTab] = useState<Tab>("dados");
   const [side, setSide] = useState<"frente" | "verso">("frente");
   const [previewId, setPreviewId] = useState<string | null>(initialStudents[0]?.id ?? null);
   const [fit, setFit] = useState<{ fontSize: number; columns: number; overflow: boolean } | null>(null);
@@ -233,13 +233,23 @@ export function CourseEditor({
                   <Input value={form.name} onChange={(e) => set("name", e.target.value)} />
                 </Field>
                 <Field label="Modelo de certificado" hint="Os modelos definem logo, cores, fontes e imagens de fundo.">
-                  <Select value={form.templateId ?? ""} onChange={(e) => set("templateId", e.target.value || null)}>
-                    <option value="">— padrão sem logo —</option>
+                  <Select
+                    value={form.templateId ?? ""}
+                    onChange={(e) => set("templateId", e.target.value || null)}
+                    className={form.templateId ? "" : "ring-2 ring-amber-300"}
+                  >
+                    <option value="">Selecione um modelo…</option>
                     {templates.map((t) => (
                       <option key={t.id} value={t.id}>{t.name}</option>
                     ))}
                   </Select>
                 </Field>
+                {templates.length === 0 && (
+                  <div className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-sm text-amber-800">
+                    Nenhum modelo cadastrado ainda.{" "}
+                    <Link href="/modelos/novo" className="underline font-medium">Criar um modelo</Link>
+                  </div>
+                )}
                 <div className="grid sm:grid-cols-3 gap-4">
                   <Field label="Data de conclusão">
                     <Input type="date" value={form.completionDate} onChange={(e) => set("completionDate", e.target.value)} />

@@ -66,10 +66,13 @@ export function CourseEditor({
       instructorName: form.instructorName,
       instructorSpecialization: form.instructorSpecialization,
       instructorRegistration: form.instructorRegistration,
+      instructorCpf: form.instructorCpf,
       instructorSignature: form.instructorSignature,
       extraEnabled: form.extraEnabled,
       extraName: form.extraName,
       extraRole: form.extraRole,
+      extraRegistration: form.extraRegistration,
+      extraCpf: form.extraCpf,
       extraSignature: form.extraSignature,
       issuerText,
     }),
@@ -298,9 +301,19 @@ export function CourseEditor({
               <div className="space-y-6">
                 <section className="space-y-3">
                   <h3 className="font-semibold text-slate-800">Instrutor(a)</h3>
-                  <Field label="Nome completo">
-                    <Input value={form.instructorName} onChange={(e) => set("instructorName", e.target.value)} />
-                  </Field>
+                  <div className="grid sm:grid-cols-[1fr_200px] gap-4">
+                    <Field label="Nome completo">
+                      <Input value={form.instructorName} onChange={(e) => set("instructorName", e.target.value)} />
+                    </Field>
+                    <Field label="CPF (opcional)">
+                      <Input
+                        value={form.instructorCpf}
+                        inputMode="numeric"
+                        placeholder="000.000.000-00"
+                        onChange={(e) => set("instructorCpf", e.target.value)}
+                      />
+                    </Field>
+                  </div>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <Field label="Especialização">
                       <Input
@@ -353,6 +366,21 @@ export function CourseEditor({
                             value={form.extraRole}
                             placeholder="Ex.: Diretor de Operações"
                             onChange={(e) => set("extraRole", e.target.value)}
+                          />
+                        </Field>
+                        <Field label="Carteirinha / registro no órgão (opcional)">
+                          <Input
+                            value={form.extraRegistration}
+                            placeholder="Ex.: CRA-PR 12345"
+                            onChange={(e) => set("extraRegistration", e.target.value)}
+                          />
+                        </Field>
+                        <Field label="CPF (opcional)">
+                          <Input
+                            value={form.extraCpf}
+                            inputMode="numeric"
+                            placeholder="000.000.000-00"
+                            onChange={(e) => set("extraCpf", e.target.value)}
                           />
                         </Field>
                       </div>

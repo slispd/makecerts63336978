@@ -29,10 +29,13 @@ export interface CertData {
   instructorName: string;
   instructorSpecialization: string;
   instructorRegistration: string;
+  instructorCpf?: string;
   instructorSignature: string | null;
   extraEnabled: boolean;
   extraName: string;
   extraRole: string;
+  extraRegistration?: string;
+  extraCpf?: string;
   extraSignature: string | null;
   studentName: string;
   studentCpf: string;
@@ -337,9 +340,34 @@ export function CertificateBack({
     inner.style.fontSize = `${result.fontSize}px`;
     onFit?.(result);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [html, d.extraEnabled, d.workload]);
+  }, [html, d.extraEnabled, d.workload, d.instructorCpf, d.extraCpf, d.extraRegistration]);
 
   const cpf = d.studentCpf ? formatCpf(d.studentCpf) : "";
+
+  // Linhas de cada assinatura; campos opcionais só aparecem quando preenchidos.
+  type Line = { text: string; strong?: boolean; placeholder?: string };
+  const ph = (v: string) => (placeholders ? v : undefined);
+  const cpfLine = (v?: string): Line[] => (v ? [{ text: `CPF: ${formatCpf(v)}` }] : []);
+  const instructorLines: Line[] = [
+    { text: d.instructorName, strong: true, placeholder: ph("Nome do instrutor") },
+    { text: d.instructorSpecialization, placeholder: ph("Especialização") },
+    { text: d.instructorRegistration, placeholder: ph("Registro / carteirinha") },
+    ...cpfLine(d.instructorCpf),
+  ];
+  const studentLines: Line[] = [
+    { text: d.studentName, strong: true, placeholder: ph("Nome do aluno") },
+    { text: cpf ? `CPF: ${cpf}` : "", placeholder: ph("CPF") },
+  ];
+  const extraLines: Line[] = d.extraEnabled
+    ? [
+        { text: d.extraName, strong: true, placeholder: ph("Nome") },
+        ...(d.extraRegistration ? [{ text: d.extraRegistration }] : []),
+        ...cpfLine(d.extraCpf),
+      ]
+    : [];
+  // Mesma quantidade de linhas em todos os blocos, para os rótulos ficarem alinhados
+  const rows = Math.max(instructorLines.length, studentLines.length, extraLines.length);
+  const pad = (l: Line[]) => [...l, ...Array.from({ length: rows - l.length }, () => ({ text: "" }))];
 
   return (
     <div style={pageStyle(t)} className="cert-page">
@@ -407,36 +435,15 @@ export function CertificateBack({
           />
         </div>
 
-        <div style={{ display: "flex", gap: 18, alignItems: "flex-end" }}>
-          <SignatureBlock
-            t={t}
-            image={d.instructorSignature}
-            label="Instrutor(a)"
-            lines={[
-              { text: d.instructorName, strong: true, placeholder: placeholders ? "Nome do instrutor" : undefined },
-              { text: d.instructorSpecialization, placeholder: placeholders ? "Especialização" : undefined },
-              { text: d.instructorRegistration, placeholder: placeholders ? "Registro / carteirinha" : undefined },
-            ]}
-          />
-          <SignatureBlock
-            t={t}
-            label="Discente"
-            lines={[
-              { text: d.studentName, strong: true, placeholder: placeholders ? "Nome do aluno" : undefined },
-              { text: cpf ? `CPF: ${cpf}` : "", placeholder: placeholders ? "CPF" : undefined },
-              { text: "" },
-            ]}
-          />
+        <div style={{ display: "flex", gap: 18, alignItems: "flex-start" }}>
+          <SignatureBlock t={t} image={d.instructorSignature} label="Instrutor(a)" lines={pad(instructorLines)} />
+          <SignatureBlock t={t} label="Discente" lines={pad(studentLines)} />
           {d.extraEnabled && (
             <SignatureBlock
               t={t}
               image={d.extraSignature}
               label={d.extraRole || (placeholders ? "Cargo / função" : "Aprovação")}
-              lines={[
-                { text: d.extraName, strong: true, placeholder: placeholders ? "Nome" : undefined },
-                { text: "" },
-                { text: "" },
-              ]}
+              lines={pad(extraLines)}
             />
           )}
         </div>

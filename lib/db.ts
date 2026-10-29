@@ -73,6 +73,9 @@ export function ensureSchema(): Promise<void> {
         updated_at timestamptz not null default now()
       )`;
       await sql`alter table app_settings add column if not exists help jsonb`;
+      await sql`alter table courses add column if not exists instructor_cpf text not null default ''`;
+      await sql`alter table courses add column if not exists extra_registration text not null default ''`;
+      await sql`alter table courses add column if not exists extra_cpf text not null default ''`;
       await sql`create table if not exists user_prefs (
         email text primary key,
         welcome_dismissed boolean not null default false,

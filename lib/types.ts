@@ -27,10 +27,13 @@ export interface Course {
   instructorName: string;
   instructorSpecialization: string;
   instructorRegistration: string;
+  instructorCpf: string;
   instructorSignature: string | null;
   extraEnabled: boolean;
   extraName: string;
   extraRole: string;
+  extraRegistration: string;
+  extraCpf: string;
   extraSignature: string | null;
   createdBy: string;
   updatedAt: string;

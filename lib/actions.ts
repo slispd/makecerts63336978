@@ -108,9 +108,11 @@ export async function saveCourse(id: string, input: CourseInput) {
       instructor_name=${str(input.instructorName, 200)},
       instructor_specialization=${str(input.instructorSpecialization, 200)},
       instructor_registration=${str(input.instructorRegistration, 200)},
+      instructor_cpf=${normalizeCpf(str(input.instructorCpf, 20))},
       instructor_signature=${img(input.instructorSignature)},
       extra_enabled=${!!input.extraEnabled}, extra_name=${str(input.extraName, 200)},
       extra_role=${str(input.extraRole, 200)}, extra_signature=${img(input.extraSignature)},
+      extra_registration=${str(input.extraRegistration, 200)}, extra_cpf=${normalizeCpf(str(input.extraCpf, 20))},
       updated_at=now()
       where id=${uuid(id)}`;
     revalidatePath("/cursos");
@@ -128,11 +130,11 @@ export async function deleteCourse(id: string) {
 export async function duplicateCourse(id: string) {
   const user = await assertUser();
   const rows = await sql`insert into courses (name, template_id, department, completion_date, workload, syllabus,
-      instructor_name, instructor_specialization, instructor_registration, instructor_signature,
-      extra_enabled, extra_name, extra_role, extra_signature, created_by)
+      instructor_name, instructor_specialization, instructor_registration, instructor_signature, instructor_cpf,
+      extra_enabled, extra_name, extra_role, extra_signature, extra_registration, extra_cpf, created_by)
     select name || ' (cópia)', template_id, department, '', workload, syllabus,
-      instructor_name, instructor_specialization, instructor_registration, instructor_signature,
-      extra_enabled, extra_name, extra_role, extra_signature, ${user.email}
+      instructor_name, instructor_specialization, instructor_registration, instructor_signature, instructor_cpf,
+      extra_enabled, extra_name, extra_role, extra_signature, extra_registration, extra_cpf, ${user.email}
     from courses where id = ${uuid(id)} returning id`;
   if (!rows[0]) throw new Error("Curso não encontrado");
   revalidatePath("/cursos");

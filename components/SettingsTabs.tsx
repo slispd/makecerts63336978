@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const TABS = [
   { href: "/configuracoes", label: "Aparência" },
   { href: "/configuracoes/ajuda", label: "Ajuda e treinamento" },
+  { href: "/configuracoes/backup", label: "Backup" },
 ];
 
 export function SettingsTabs() {

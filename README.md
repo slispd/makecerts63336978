@@ -67,6 +67,8 @@ Stack: Next.js 15, Auth.js (NextAuth v5), Neon Postgres, TipTap, html-to-image +
 
 **Ajuda e treinamento**: a aba **Ajuda** mostra os vídeos (Vimeo ou YouTube) e um passo a passo. O administrador gerencia vídeos, textos e o aviso de boas-vindas em **Configurações › Ajuda e treinamento**.
 
+**Backup**: em **Configurações › Backup** o administrador baixa um arquivo com todos os dados (configurações, ajuda, usuários, modelos, cursos e alunos) e pode restaurá-lo em outra instalação. O arquivo contém CPFs: guarde com cuidado.
+
 **Duplicar**: cria um novo curso com a mesma ementa e assinaturas (sem alunos) — útil para turmas recorrentes.
 
 ## 4. Rodar localmente

@@ -1,8 +1,15 @@
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
-import { timingSafeEqual } from "crypto";
+import { createHash, timingSafeEqual } from "crypto";
+import { headers as nextHeaders } from "next/headers";
 import { ensureSchema, sql } from "@/lib/db";
+import { clearFailures, clientIp, isLocked, recordFailure } from "@/lib/ratelimit";
+
+/** Erro exibido quando o login está bloqueado por excesso de tentativas. */
+class LockedError extends CredentialsSignin {
+  code = "locked";
+}
 
 export const microsoftEnabled = Boolean(
   process.env.AUTH_MICROSOFT_ENTRA_ID_ID &&
@@ -10,10 +17,10 @@ export const microsoftEnabled = Boolean(
     process.env.AUTH_MICROSOFT_ENTRA_ID_TENANT_ID
 );
 
+// Compara pelo hash: tempo constante e sem revelar o tamanho da senha
 function safeEqual(a: string, b: string) {
-  const ba = Buffer.from(a);
-  const bb = Buffer.from(b);
-  return ba.length === bb.length && timingSafeEqual(ba, bb);
+  const h = (v: string) => createHash("sha256").update(v).digest();
+  return timingSafeEqual(h(a), h(b));
 }
 
 const adminEmail = (process.env.ADMIN_EMAIL || "").trim().toLowerCase();
@@ -23,12 +30,29 @@ const providers: any[] = [
     id: "credentials",
     name: "Administrador",
     credentials: { email: {}, password: {} },
-    async authorize(creds) {
+    async authorize(creds, request) {
       const email = String(creds?.email || "").trim().toLowerCase();
       const password = String(creds?.password || "");
       const expected = process.env.ADMIN_PASSWORD || "";
       if (!adminEmail || !expected) return null;
-      if (email !== adminEmail || !safeEqual(password, expected)) return null;
+
+      let reqHeaders: Headers | null = (request as Request | undefined)?.headers ?? null;
+      if (!reqHeaders?.get("x-forwarded-for")) {
+        try {
+          reqHeaders = new Headers(await nextHeaders());
+        } catch {
+          /* fora de uma requisição */
+        }
+      }
+      const ip = clientIp(reqHeaders);
+
+      if (await isLocked(ip, email)) throw new LockedError();
+      if (email !== adminEmail || !safeEqual(password, expected)) {
+        await recordFailure(ip, email);
+        await new Promise((r) => setTimeout(r, 400)); // atrasa tentativas automáticas
+        return null;
+      }
+      await clearFailures(ip);
       return {
         id: adminEmail,
         email: adminEmail,

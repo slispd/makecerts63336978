@@ -137,3 +137,10 @@ export function safeFileName(v: string): string {
     .trim()
     .slice(0, 120);
 }
+
+/** CPF parcialmente oculto para exibição em tela: ***.456.789-** */
+export function maskCpf(v: string): string {
+  const d = onlyDigits(v);
+  if (d.length !== 11) return d ? "•••" : "";
+  return `***.${d.slice(3, 6)}.${d.slice(6, 9)}-**`;
+}

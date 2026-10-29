@@ -1,5 +1,7 @@
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
+import { ensureSchema, sql } from "./db";
 import type { Role } from "./types";
 
 export interface SessionUser {
@@ -18,7 +20,11 @@ export function missingEnv(): string[] {
   return missing;
 }
 
-export async function getUser(): Promise<SessionUser | null> {
+/**
+ * Usuário da sessão, revalidado no banco a cada requisição: bloquear alguém
+ * ou mudar o perfil em "Usuários" vale imediatamente, sem esperar novo login.
+ */
+export const getUser = cache(async (): Promise<SessionUser | null> => {
   let session;
   try {
     session = await auth();
@@ -26,13 +32,26 @@ export async function getUser(): Promise<SessionUser | null> {
     console.error("Falha ao ler a sessão:", e);
     return null;
   }
-  if (!session?.user?.email) return null;
-  return {
-    email: session.user.email,
-    name: session.user.name || session.user.email,
-    role: ((session.user as any).role as Role) || "coordenador",
-  };
-}
+  const email = String(session?.user?.email || "").toLowerCase();
+  if (!email) return null;
+  const name = session?.user?.name || email;
+
+  // Administrador pré-definido (variáveis de ambiente)
+  const adminEmail = (process.env.ADMIN_EMAIL || "").trim().toLowerCase();
+  if (adminEmail && email === adminEmail) return { email, name, role: "admin" };
+
+  // Contas Microsoft: precisam existir e estar ativas
+  try {
+    await ensureSchema();
+    const rows = await sql`select role, active from app_users where email = ${email}`;
+    const row: any = rows[0];
+    if (!row || !row.active) return null;
+    return { email, name, role: row.role === "admin" ? "admin" : "coordenador" };
+  } catch (e) {
+    console.error("Falha ao validar o usuário:", e);
+    return null; // na dúvida, nega o acesso
+  }
+});
 
 /** Para páginas: redireciona para o login se não houver sessão. */
 export async function requireUser(): Promise<SessionUser> {

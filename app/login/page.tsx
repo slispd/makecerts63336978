@@ -7,6 +7,7 @@ import { LoginHero } from "@/components/LoginHero";
 
 const ERRORS: Record<string, string> = {
   CredentialsSignin: "E-mail ou senha incorretos.",
+  Locked: "Muitas tentativas de login. Por segurança, o acesso foi bloqueado por 15 minutos.",
   AccessDenied: "Sua conta Microsoft não está autorizada. Peça acesso ao administrador.",
   Configuration: "Erro de configuração do login. Verifique as variáveis de ambiente.",
 };
@@ -30,7 +31,10 @@ export default async function LoginPage({
         redirectTo: "/cursos",
       });
     } catch (e) {
-      if (e instanceof AuthError) redirect(`/login?error=${e.type === "CredentialsSignin" ? "CredentialsSignin" : "Configuration"}`);
+      if (e instanceof AuthError) {
+        const code = e.type === "CredentialsSignin" ? ((e as any).code === "locked" ? "Locked" : "CredentialsSignin") : "Configuration";
+        redirect(`/login?error=${code}`);
+      }
       throw e;
     }
   }

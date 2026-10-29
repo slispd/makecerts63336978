@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import { addStudent, deleteStudent, importStudents, updateStudent } from "@/lib/actions";
-import { csvToStudents, formatCpf, isValidCpf, parseCsv, type ParsedStudent } from "@/lib/format";
+import { csvToStudents, formatCpf, isValidCpf, maskCpf, parseCsv, type ParsedStudent } from "@/lib/format";
 import type { Student } from "@/lib/types";
 import { Button, inputCls } from "./ui";
 
@@ -48,6 +48,8 @@ export function StudentsPanel({
   const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
   const [editing, setEditing] = useState<{ id: string; name: string; cpf: string } | null>(null);
   const [filter, setFilter] = useState("");
+  const [showCpf, setShowCpf] = useState(false);
+  const cpfText = (v: string) => (showCpf ? formatCpf(v) : maskCpf(v));
   const [importRows, setImportRows] = useState<ParsedStudent[] | null>(null);
   const [replace, setReplace] = useState(false);
   const [working, setWorking] = useState(false);
@@ -166,7 +168,7 @@ export function StudentsPanel({
                 {importRows.map((r, i) => (
                   <tr key={i} className={r.valid ? "" : "opacity-50"}>
                     <td className="px-3 py-1.5">{r.name || <i className="text-slate-400">sem nome</i>}</td>
-                    <td className="px-3 py-1.5 tabular-nums text-slate-600">{formatCpf(r.cpf)}</td>
+                    <td className="px-3 py-1.5 tabular-nums text-slate-600">{cpfText(r.cpf)}</td>
                     <td className="px-3 py-1.5 text-xs text-amber-700">{r.issue}</td>
                   </tr>
                 ))}
@@ -197,7 +199,17 @@ export function StudentsPanel({
           <thead className="bg-slate-50 text-left text-slate-500">
             <tr>
               <th className="px-3 py-2 font-medium">Aluno ({students.length})</th>
-              <th className="px-3 py-2 font-medium w-40">CPF</th>
+              <th className="px-3 py-2 font-medium w-40">
+                CPF{" "}
+                <button
+                  type="button"
+                  onClick={() => setShowCpf((v) => !v)}
+                  className="ml-1 text-xs font-normal text-brand-600 hover:underline"
+                  title="Os CPFs ficam parcialmente ocultos na tela. O certificado sai com o CPF completo."
+                >
+                  {showCpf ? "ocultar" : "mostrar"}
+                </button>
+              </th>
               <th className="px-3 py-2 w-48" />
             </tr>
           </thead>
@@ -231,7 +243,7 @@ export function StudentsPanel({
                     </button>
                   </td>
                   <td className="px-3 py-2 tabular-nums text-slate-600">
-                    {s.cpf ? formatCpf(s.cpf) : <span className="text-amber-600">sem CPF</span>}
+                    {s.cpf ? cpfText(s.cpf) : <span className="text-amber-600">sem CPF</span>}
                     {s.cpf && !isValidCpf(s.cpf) && <span className="ml-1 text-amber-600" title="CPF inválido">⚠</span>}
                   </td>
                   <td className="px-3 py-2 text-right whitespace-nowrap text-xs">

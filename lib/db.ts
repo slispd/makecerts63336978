@@ -78,6 +78,12 @@ export function ensureSchema(): Promise<void> {
         welcome_dismissed boolean not null default false,
         updated_at timestamptz not null default now()
       )`;
+      await sql`create table if not exists login_attempts (
+        key text primary key,
+        failures int not null default 0,
+        window_start timestamptz not null default now(),
+        locked_until timestamptz
+      )`;
     })().catch((err) => {
       ready = null;
       throw err;

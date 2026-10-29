@@ -78,7 +78,7 @@ export function SettingsEditor({ initial }: { initial: SettingsView }) {
   return (
     <div>
       <PageHeader
-        title="Configurações"
+        title={<span className="text-lg">Aparência</span>}
         subtitle="Personalize o nome, os textos, as cores e a tela de login do sistema."
         actions={
           <>

@@ -72,6 +72,12 @@ export function ensureSchema(): Promise<void> {
         login_bg text,
         updated_at timestamptz not null default now()
       )`;
+      await sql`alter table app_settings add column if not exists help jsonb`;
+      await sql`create table if not exists user_prefs (
+        email text primary key,
+        welcome_dismissed boolean not null default false,
+        updated_at timestamptz not null default now()
+      )`;
     })().catch((err) => {
       ready = null;
       throw err;

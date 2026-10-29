@@ -65,6 +65,8 @@ Stack: Next.js 15, Auth.js (NextAuth v5), Neon Postgres, TipTap, html-to-image +
 
 **CSV**: duas colunas, `nome` e `cpf`, separadas por `;` ou `,`. Arquivos salvos pelo Excel (Windows-1252) são lidos corretamente, e zeros à esquerda do CPF perdidos pelo Excel são recompostos.
 
+**Ajuda e treinamento**: a aba **Ajuda** mostra os vídeos (Vimeo ou YouTube) e um passo a passo. O administrador gerencia vídeos, textos e o aviso de boas-vindas em **Configurações › Ajuda e treinamento**.
+
 **Duplicar**: cria um novo curso com a mesma ementa e assinaturas (sem alunos) — útil para turmas recorrentes.
 
 ## 4. Rodar localmente

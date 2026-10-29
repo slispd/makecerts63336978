@@ -2,13 +2,24 @@ import Link from "next/link";
 import { listCourses } from "@/lib/data";
 import { formatDateLong } from "@/lib/format";
 import { Card, PageHeader } from "@/components/ui";
+import { WelcomeBanner } from "@/components/WelcomeBanner";
+import { getHelp, isWelcomeDismissed } from "@/lib/help";
+import { requireUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
 export default async function CoursesPage() {
-  const courses = await listCourses();
+  const [courses, help, user] = await Promise.all([listCourses(), getHelp(), requireUser()]);
+  const showWelcome = help.welcomeEnabled && !(await isWelcomeDismissed(user.email));
   return (
     <>
+      {showWelcome && (
+        <WelcomeBanner
+          title={help.welcomeTitle}
+          text={help.welcomeText}
+          videoCount={help.videos.filter((v) => v.url).length}
+        />
+      )}
       <PageHeader
         title="Cursos"
         subtitle="Cada curso reúne a ementa, o instrutor e a lista de alunos que recebem certificado."

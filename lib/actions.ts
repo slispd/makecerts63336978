@@ -8,6 +8,7 @@ import { isUuid, listStudents, mapStudent, mapTemplate } from "./data";
 import { normalizeCpf, titleCaseName } from "./format";
 import type { CourseInput, Role, Student, TemplateInput } from "./types";
 import { normalizeSettings, type AppSettings } from "./settings-shared";
+import { normalizeHelp, type HelpContent } from "./help-shared";
 
 type Result<T = undefined> = { ok: true; data?: T } | { ok: false; error: string };
 
@@ -240,5 +241,39 @@ export async function saveSettings(input: AppSettings, logo?: string | null, bg?
     if (logo !== undefined) await sql`update app_settings set logo = ${rasterImg(logo)}, updated_at = now() where id = 1`;
     if (bg !== undefined) await sql`update app_settings set login_bg = ${rasterImg(bg)}, updated_at = now() where id = 1`;
     revalidatePath("/", "layout");
+  });
+}
+
+/* ------------------------------ Ajuda ------------------------------ */
+
+export async function saveHelp(input: HelpContent) {
+  return run(async () => {
+    await assertAdmin();
+    await ensureSchema();
+    const data = JSON.stringify(normalizeHelp(input));
+    await sql`insert into app_settings (id, help) values (1, ${data}::jsonb)
+      on conflict (id) do update set help = excluded.help`;
+    revalidatePath("/ajuda");
+    revalidatePath("/cursos");
+  });
+}
+
+/** Marca (ou desmarca), para o usuário logado, que o aviso de boas-vindas não deve mais aparecer. */
+export async function dismissWelcome(dismissed: boolean = true) {
+  return run(async () => {
+    const user = await assertUser();
+    await ensureSchema();
+    await sql`insert into user_prefs (email, welcome_dismissed) values (${user.email.toLowerCase()}, ${!!dismissed})
+      on conflict (email) do update set welcome_dismissed = excluded.welcome_dismissed, updated_at = now()`;
+  });
+}
+
+/** Volta a exibir o aviso de boas-vindas para todos os usuários. */
+export async function resetWelcome() {
+  return run(async () => {
+    await assertAdmin();
+    await ensureSchema();
+    await sql`update user_prefs set welcome_dismissed = false, updated_at = now()`;
+    revalidatePath("/cursos");
   });
 }

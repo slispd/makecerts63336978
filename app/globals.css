@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50: #eef3f9;
+  --color-brand-100: #d7e2f0;
+  --color-brand-500: #2f5a8f;
+  --color-brand-600: #24497a;
+  --color-brand-700: #1d3557;
+  --color-brand-900: #0f1d33;
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  background: #f4f5f7;
+  color: #1e2430;
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* ---------- Conteúdo da ementa (certificado e editor) ---------- */
+.cert-syllabus p,
+.rte-content p {
+  margin: 0 0 0.45em;
+}
+.cert-syllabus h2,
+.rte-content h2 {
+  font-size: 1.25em;
+  font-weight: 700;
+  margin: 0.5em 0 0.3em;
+}
+.cert-syllabus h3,
+.rte-content h3 {
+  font-size: 1.1em;
+  font-weight: 700;
+  margin: 0.45em 0 0.25em;
+}
+.cert-syllabus ul,
+.rte-content ul {
+  list-style: disc;
+  padding-left: 1.4em;
+  margin: 0 0 0.45em;
+}
+.cert-syllabus ol,
+.rte-content ol {
+  list-style: decimal;
+  padding-left: 1.5em;
+  margin: 0 0 0.45em;
+}
+.cert-syllabus li,
+.rte-content li {
+  margin: 0.1em 0;
+  break-inside: avoid;
+}
+.cert-syllabus li p,
+.rte-content li p {
+  margin: 0;
+}
+.cert-syllabus blockquote,
+.rte-content blockquote {
+  border-left: 3px solid currentColor;
+  opacity: 0.85;
+  padding-left: 0.8em;
+  margin: 0 0 0.45em;
+}
+.cert-syllabus hr,
+.rte-content hr {
+  border: 0;
+  border-top: 1px solid currentColor;
+  opacity: 0.3;
+  margin: 0.6em 0;
+}
+.cert-syllabus strong,
+.rte-content strong {
+  font-weight: 700;
+}
+.cert-syllabus > :first-child,
+.rte-content > :first-child {
+  margin-top: 0;
+}
+
+.rte-content {
+  outline: none;
+  min-height: 320px;
+  line-height: 1.55;
+}
+.rte-content p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #9aa3af;
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* ---------- Impressão: A4 paisagem, sem margens ---------- */
+@page {
+  size: A4 landscape;
+  margin: 0;
+}
+@media print {
+  html,
+  body {
+    background: #fff !important;
+    margin: 0;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-sheet {
+    break-after: page;
+    page-break-after: always;
+  }
+  .print-sheet:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

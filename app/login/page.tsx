@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
 import { microsoftEnabled, signIn } from "@/auth";
 import { getUser, missingEnv } from "@/lib/session";
+import { getSettings } from "@/lib/settings";
+import { LoginHero } from "@/components/LoginHero";
 
 const ERRORS: Record<string, string> = {
   CredentialsSignin: "E-mail ou senha incorretos.",
@@ -17,6 +19,7 @@ export default async function LoginPage({
   if (await getUser()) redirect("/cursos");
   const { error } = await searchParams;
   const missing = missingEnv();
+  const settings = await getSettings();
 
   async function loginAdmin(formData: FormData) {
     "use server";
@@ -39,27 +42,18 @@ export default async function LoginPage({
 
   return (
     <main className="min-h-screen grid lg:grid-cols-[1fr_480px]">
-      <section className="hidden lg:flex flex-col justify-between bg-brand-900 text-white p-14 relative overflow-hidden">
-        <div className="absolute inset-10 border border-white/15" />
-        <div className="absolute inset-14 border border-white/10" />
-        <div className="relative text-sm tracking-[0.3em] uppercase text-white/60">ABIX Tecnologia</div>
-        <div className="relative">
-          <h1 className="font-[family-name:var(--font-serif)] text-6xl leading-tight">
-            Certificados
-            <br />
-            de treinamentos
-          </h1>
-          <p className="mt-6 text-white/70 max-w-md text-lg">
-            Cadastre cursos, importe participantes e emita certificados em PDF no padrão A4.
-          </p>
-        </div>
-        <div className="relative text-white/40 text-sm">Uso interno</div>
-      </section>
+      <div className="hidden lg:flex [&>section]:flex-1">
+        <LoginHero s={settings} />
+      </div>
 
       <section className="flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-sm">
+          {settings.logoUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={settings.logoUrl} alt="" className="h-10 w-auto mb-6 lg:hidden" />
+          )}
           <h2 className="text-2xl font-semibold text-slate-900">Entrar</h2>
-          <p className="text-slate-500 mt-1 mb-8">Acesse com sua conta corporativa.</p>
+          <p className="text-slate-500 mt-1 mb-8">{settings.loginWelcome}</p>
 
           {missing.length > 0 && (
             <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">

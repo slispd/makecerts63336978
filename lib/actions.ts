@@ -7,6 +7,7 @@ import { assertAdmin, assertUser } from "./session";
 import { isUuid, listStudents, mapStudent, mapTemplate } from "./data";
 import { normalizeCpf, titleCaseName } from "./format";
 import type { CourseInput, Role, Student, TemplateInput } from "./types";
+import { normalizeSettings, type AppSettings } from "./settings-shared";
 
 type Result<T = undefined> = { ok: true; data?: T } | { ok: false; error: string };
 
@@ -214,5 +215,30 @@ export async function deleteUser(email: string) {
     await assertAdmin();
     await sql`delete from app_users where email = ${email}`;
     revalidatePath("/usuarios");
+  });
+}
+
+/* ------------------------------ Configurações ------------------------------ */
+
+const rasterImg = (v: unknown) => {
+  const s = img(v);
+  if (s && !/^data:image\/(png|jpe?g|webp);base64,/.test(s)) throw new Error("Use imagem PNG, JPG ou WEBP");
+  return s;
+};
+
+/**
+ * Salva as configurações. Para logo e fundo: string data: = nova imagem,
+ * null = remover, undefined = manter a atual.
+ */
+export async function saveSettings(input: AppSettings, logo?: string | null, bg?: string | null) {
+  return run(async () => {
+    await assertAdmin();
+    await ensureSchema();
+    const data = JSON.stringify(normalizeSettings(input));
+    await sql`insert into app_settings (id, data) values (1, ${data}::jsonb)
+      on conflict (id) do update set data = excluded.data, updated_at = now()`;
+    if (logo !== undefined) await sql`update app_settings set logo = ${rasterImg(logo)}, updated_at = now() where id = 1`;
+    if (bg !== undefined) await sql`update app_settings set login_bg = ${rasterImg(bg)}, updated_at = now() where id = 1`;
+    revalidatePath("/", "layout");
   });
 }

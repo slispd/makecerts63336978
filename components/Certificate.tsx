@@ -36,6 +36,8 @@ export interface CertData {
   extraSignature: string | null;
   studentName: string;
   studentCpf: string;
+  /** Frase antes do nome do aluno (Configurações). */
+  issuerText?: string;
 }
 
 export const DEFAULT_TEMPLATE: CertTemplate = {
@@ -207,7 +209,7 @@ export function CertificateFront({
         </div>
 
         <div style={{ width: "100%" }}>
-          <div style={{ fontSize: 20, color: alpha(t.textColor, 0.85) }}>{ISSUER_TEXT}</div>
+          <div style={{ fontSize: 20, color: alpha(t.textColor, 0.85) }}>{d.issuerText || ISSUER_TEXT}</div>
           <div
             ref={nameRef}
             style={{

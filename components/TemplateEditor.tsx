@@ -27,7 +27,7 @@ const SAMPLE = {
   studentCpf: "52998224725",
 };
 
-export function TemplateEditor({ template }: { template?: Template }) {
+export function TemplateEditor({ template, issuerText }: { template?: Template; issuerText?: string }) {
   const router = useRouter();
   const [form, setForm] = useState<TemplateInput>(() =>
     template
@@ -152,7 +152,7 @@ export function TemplateEditor({ template }: { template?: Template }) {
             ))}
           </div>
           <ScaledPage>
-            {side === "frente" ? <CertificateFront t={form} d={SAMPLE} /> : <CertificateBack t={form} d={SAMPLE} />}
+            {side === "frente" ? <CertificateFront t={form} d={{ ...SAMPLE, issuerText }} /> : <CertificateBack t={form} d={SAMPLE} />}
           </ScaledPage>
           <p className="text-xs text-slate-500">Exemplo com dados fictícios.</p>
         </div>

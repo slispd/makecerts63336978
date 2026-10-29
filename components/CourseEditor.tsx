@@ -22,7 +22,9 @@ export function CourseEditor({
   course,
   initialStudents,
   templates,
+  issuerText,
 }: {
+  issuerText?: string;
   course: Course;
   initialStudents: Student[];
   templates: Template[];
@@ -67,8 +69,9 @@ export function CourseEditor({
       extraName: form.extraName,
       extraRole: form.extraRole,
       extraSignature: form.extraSignature,
+      issuerText,
     }),
-    [form]
+    [form, issuerText]
   );
 
   const previewStudent = students.find((s) => s.id === previewId) ?? students[0];

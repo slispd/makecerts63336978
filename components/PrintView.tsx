@@ -4,7 +4,17 @@ import { useEffect, useState } from "react";
 import type { Course, Student, Template } from "@/lib/types";
 import { CertificateBack, CertificateFront, DEFAULT_TEMPLATE } from "./Certificate";
 
-export function PrintView({ course, students, template }: { course: Course; students: Student[]; template: Template | null }) {
+export function PrintView({
+  course,
+  students,
+  template,
+  issuerText,
+}: {
+  course: Course;
+  students: Student[];
+  template: Template | null;
+  issuerText?: string;
+}) {
   const [ready, setReady] = useState(false);
   const t = template ?? DEFAULT_TEMPLATE;
 
@@ -54,6 +64,7 @@ export function PrintView({ course, students, template }: { course: Course; stud
             extraSignature: course.extraSignature,
             studentName: s.name,
             studentCpf: s.cpf,
+            issuerText,
           };
           return [
             <div key={s.id + "f"} className="print-sheet shadow-lg print:shadow-none">

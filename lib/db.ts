@@ -65,6 +65,13 @@ export function ensureSchema(): Promise<void> {
         created_at timestamptz not null default now()
       )`;
       await sql`create index if not exists students_course_idx on students(course_id)`;
+      await sql`create table if not exists app_settings (
+        id int primary key default 1 check (id = 1),
+        data jsonb not null default '{}'::jsonb,
+        logo text,
+        login_bg text,
+        updated_at timestamptz not null default now()
+      )`;
     })().catch((err) => {
       ready = null;
       throw err;

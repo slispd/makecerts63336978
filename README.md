@@ -77,7 +77,7 @@ npm run dev
 
 ## Observações
 
-- O texto institucional “A ABIX TECNOLOGIA LTDA certifica que,” está em `components/Certificate.tsx` (`ISSUER_TEXT`).
+- Nome da empresa, textos e imagem da tela de login, cores, logo e a frase “A ABIX TECNOLOGIA LTDA certifica que,” são alterados em **Configurações** (menu visível só para administradores).
 - Imagens (logos, fundos, assinaturas) ficam no próprio banco, já reduzidas no navegador antes do envio.
 - Os PDFs são gerados no navegador do usuário, sem custo de servidor. Cada página sai em imagem de alta resolução (cerca de 190 dpi); para arquivos menores e texto selecionável use “Imprimir → Salvar como PDF”.
 - `next.config.mjs` ignora erros de tipagem no build como garantia extra; pode remover após o primeiro build.
